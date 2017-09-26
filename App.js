@@ -2,75 +2,62 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, WebView } from 'react-native';
 
 export default class App extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      numBeans: 2
-    };
+
+  getBeanImage() {
+    return <Image source={require('./bitbean.png')}/>
   }
-
-  _onPressButton() {
-    this.setState({numBeans: this.state.numBeans + 1});
-  }
-
-  getBeanImage(num) {
-    return <Image key={num} source={require('./bitbean.png')}/>
-  }
-
-  render() {
-
-    const beans = [ this.getBeanImage(0) ];
-
-    for (var i = 1; i < this.state.numBeans; i += 1) {
-      beans.push( this.getBeanImage(i) );
-    }
-
-    return (
-      <View style={styles.container} >
-        {/*
-        <TouchableOpacity onPress={this._onPressButton.bind(this)}>
-          <View style={styles.button}>
-            {beans}
-          </View>
-        </TouchableOpacity>
-        */}
-        <View>
-            <BitbeanMarket/>
-        </View>
-      </View>
-    );
-  }
-}
-
-class BitbeanMarket extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {items:[]}
+    this.state = {market:{}}
+    this.setMarket()
   }
 
-  _onPressButton() {
-  }
-
-  componentDidMount() {
-    fetch('https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-bitb').then(result=> {
-      this.setState({items: [result.json()] })}
-    ).catch((error) => {
+  setMarket() {
+    fetch('https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-bitb').then(response => response.json())
+    .then(response => {
+      this.setState({market: response}, function() {
+      this.render()
+    })}).catch((error) => {
       console.error(error);
     });
   }
 
+  _onPressButton() {
+    this.setMarket()
+  }
+
+  componentDidMount() {
+    this.setMarket()
+  }
+
+
   render() {
-    return(
-      <TouchableOpacity onPress={this._onPressButton.bind(this)}>
-        <View>
-          <Text>Items:</Text>
-          <Text>{JSON.stringify(this.state.items)} </Text>
-        </View>
-      </TouchableOpacity>)
-      
+    function Market(props) {
+      if (props.jsonMarket["success"]) {
+        const res = props.jsonMarket["result"][0]
+        return <TouchableOpacity onPress={props.binder._onPressButton.bind(props.binder)} style={styles.container}>
+               <View style={styles.button}>
+               <Image source={require('./bitbean.png')}/> 
+               <Text>{res["MarketName"]}</Text>
+               <Text>High: {res["High"]} Low: {res["Low"]}</Text>
+               <Text>Volume: {res["Volume"]} Last: {res["Last"]}</Text>
+               <Text>Open Buys: {res["OpenBuyOrders"]} Open Sells: {res["OpenSellOrders"]}</Text>
+               </View>
+               </TouchableOpacity>
+      } else {
+        return <TouchableOpacity onPress={props.binder._onPressButton.bind(props.binder)} style={styles.container}>
+               <View style={styles.button}>
+               <Image source={require('./bitbean.png')}/> 
+               <Text>Failure</Text>
+               </View>
+               </TouchableOpacity>
+      }
+    }
+    return(<Market jsonMarket={this.state.market} binder={this} />)
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {
