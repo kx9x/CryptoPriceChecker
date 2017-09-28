@@ -3,12 +3,6 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, WebView, Picker
 import {BTC_BITB, BTC_ARK, BTC_OMG, BTC_LTC, BTC_BAT, stMarketToIcon} from './config';
 
 export default class App extends React.Component {
-
-  getBeanImage() {
-    return <Image source={require('./bitbean.png')}/>
-  }
-
-
   constructor(props) {
     super(props);
     this.state = {externalDataRes:{}, stMarket: BTC_BITB}
