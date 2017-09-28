@@ -1,19 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert, WebView, Picker} from 'react-native';
-
-const BTC_BITB = 'btc-bitb'
-const BTC_ARK = 'btc-ark'
-const BTC_OMG = 'btc-omg'
-const BTC_BAT = 'btc-ark'
-const BTC_LTC = 'btc-ltc'
-
-const stMarketToIcon = {
-  'btc-bitb': require('./bitbean.png'),
-  'btc-ark': require('./ark.png'),
-  'btc-omg': require('./omisego.png'),
-  'btc-bat': require('./bat.png'),
-  'btc-ltc': require('./litecoin.png')
-}
+import {BTC_BITB, BTC_ARK, BTC_OMG, BTC_LTC, BTC_BAT, stMarketToIcon} from './config';
 
 export default class App extends React.Component {
 
@@ -32,7 +19,7 @@ export default class App extends React.Component {
   setMarket(stMarket) {
     fetch('https://bittrex.com/api/v1.1/public/getmarketsummary?market=' + stMarket).then(response => response.json())
     .then(response => {
-      this.setState({externalDataRes: response}, function() {
+      this.setState({externalDataRes: response, stMarket: stMarket}, function() {
       this.render()
     })}).catch((error) => {
       console.error(error);
@@ -74,8 +61,8 @@ export default class App extends React.Component {
     return(
       <View style={styles.mainContainer}>
         <View style={styles.toolbar}>
-            <Picker selectedValue={this.state.stMarket} onValueChange={(itemValue, itemIndex) => this.setState({stMarket: itemValue})} style={styles.toolbarButton}>
-            {Object.keys(this.stMarketToIcon).map( (k,v) =>(<Picker.Item label={k} value={k} />))}
+            <Picker selectedValue={this.state.stMarket} onValueChange={(itemValue, itemIndex) => this.setMarket(itemValue)} style={styles.toolbarButton}>
+            {Object.keys(this.stMarketToIcon).map( (k,v) =>(<Picker.Item label={k} value={k} key={v} />))}
             </Picker>
            <Text style={styles.toolbarTitle}>{this.state.stMarket}</Text>
            <Text style={styles.toolbarButton}>Like</Text>
@@ -113,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    backgroundColor:'#ebeef0',
+    backgroundColor:'#fff',
     alignItems:'center',
     flex:1
   },
@@ -121,7 +108,7 @@ const styles = StyleSheet.create({
     alignItems:'center',
   },
   messageBox:{
-    backgroundColor:'#ef553a',
+    backgroundColor:'#fff',
     width:300,
     paddingTop:10,
     paddingBottom:20,
